@@ -1,13 +1,15 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, View, Text, Button } from 'react-native';
+import React, { useState, useCallback, useEffect } from 'react';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { getPreciseDistance } from 'geolib';
+import Feather from 'react-native-vector-icons/Feather';
 
-const App = () => {
+import MapBottomCard from '../components/MapBottomCard';
+
+const MapScreen = ({ navigation, route }) => {
   const [marker1, setMarker1] = useState(null);
   const [marker2, setMarker2] = useState(null);
+  const [mapType, setMapType] = useState(route.params?.mapType || 'standard'); // Sync mapType
   const [selectedMarker, setSelectedMarker] = useState(1);
-  const [distance, setDistance] = useState(0);
   const initialRegion = {
     latitude: 20.5937,
     longitude: 78.9629,
@@ -15,9 +17,15 @@ const App = () => {
     longitudeDelta: 30,
   };
 
-  const handleMapPress = useCallback((event) => {
-    const { latitude, longitude } = event.nativeEvent.coordinate;
+  useEffect(() => {
+    if (route.params?.mapType) {
+      setMapType(route.params.mapType);
+    }
+  }, [route.params]);
 
+  const handleMapPress = (event) => {
+    const { latitude, longitude } = event.nativeEvent.coordinate;
+    console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
     if (selectedMarker === 1) {
       setMarker1({ latitude, longitude });
       setSelectedMarker(2);
@@ -25,38 +33,22 @@ const App = () => {
       setMarker2({ latitude, longitude });
       setSelectedMarker(1);
     }
-  }, [selectedMarker]);
-
-  const calculateDistance = useCallback(() => {
-    if (marker1 && marker2) {
-      const dist = getPreciseDistance(
-        { latitude: marker1.latitude, longitude: marker1.longitude },
-        { latitude: marker2.latitude, longitude: marker2.longitude },
-        0.01
-      );
-      setDistance(dist / 1000);
-    }
-  }, [marker1, marker2]);
-
-  // Run when user selected both locatoin
-  useEffect(() => {
-    if (marker1 && marker2) {
-      calculateDistance();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [marker1, marker2]);
+  };
 
   const resetMarkers = useCallback(() => {
     setMarker1(null);
     setMarker2(null);
-    setDistance(0);
     setSelectedMarker(1);
   }, []);
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity style={styles.settingsIcon} onPress={() => navigation.navigate('Settings', { mapType })}>
+        <Feather name="settings" color="#888" size={22} />
+      </TouchableOpacity>
       <MapView
         provider={PROVIDER_GOOGLE}
+        mapType={mapType}
         style={styles.map}
         region={initialRegion}
         onPress={handleMapPress}
@@ -83,19 +75,14 @@ const App = () => {
         )}
       </MapView>
 
-      <View style={styles.info}>
-        <Text style={styles.distanceText}>
-          Distance: {distance.toFixed(2)} km
-        </Text>
-        <Button
-          title="Reset Markers"
-          onPress={resetMarkers}
-          disabled={!marker1 && !marker2}
-        />
-        <Text style={styles.instructionText}>
-          Tap on the map to set {selectedMarker === 1 ? 'Marker 1 (Red)' : 'Marker 2 (Blue)'}
-        </Text>
-      </View>
+      <MapBottomCard
+        selectedMarker={selectedMarker}
+        marker1={marker1}
+        marker2={marker2}
+        setMarker1={setMarker1}
+        setMarker2={setMarker2}
+        onResetMarkers={resetMarkers}
+      />
     </View>
   );
 };
@@ -108,10 +95,13 @@ const styles = StyleSheet.create({
     flex: 3,
   },
   info: {
-    flex: 1,
+    flex: 2,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 10,
+    marginTop: -30,
+    borderTopEndRadius: 25,
+    borderTopStartRadius: 25,
     backgroundColor: '#f5f5f5',
   },
   distanceText: {
@@ -155,6 +145,21 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  settingsIcon: {
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    zIndex: 10,
+    elevation: 10,
+  },
+  settingsText: {
+    fontSize: 24,
+    color: '#333',
+  },
 });
 
-export default App;
+export default MapScreen;
