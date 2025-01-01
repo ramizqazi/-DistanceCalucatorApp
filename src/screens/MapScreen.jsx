@@ -8,8 +8,10 @@ import MapBottomCard from '../components/MapBottomCard';
 const MapScreen = ({ navigation, route }) => {
   const [marker1, setMarker1] = useState(null);
   const [marker2, setMarker2] = useState(null);
-  const [mapType, setMapType] = useState(route.params?.mapType || 'standard'); // Sync mapType
+  const [mapType, setMapType] = useState(route.params?.mapType || 'standard'); // Default to 'standard'
   const [selectedMarker, setSelectedMarker] = useState(1);
+
+  // added asia as initial region
   const initialRegion = {
     latitude: 20.5937,
     longitude: 78.9629,
@@ -19,13 +21,14 @@ const MapScreen = ({ navigation, route }) => {
 
   useEffect(() => {
     if (route.params?.mapType) {
-      setMapType(route.params.mapType);
+      setMapType(route.params.mapType); // Update mapType from route params
     }
-  }, [route.params]);
+  }, [route.params?.mapType]);
 
   const handleMapPress = (event) => {
     const { latitude, longitude } = event.nativeEvent.coordinate;
     console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
+
     if (selectedMarker === 1) {
       setMarker1({ latitude, longitude });
       setSelectedMarker(2);
@@ -41,9 +44,13 @@ const MapScreen = ({ navigation, route }) => {
     setSelectedMarker(1);
   }, []);
 
+  const handleSettingsPress = () => {
+    navigation.navigate('Settings', { mapType }); // Pass current mapType to Settings
+  };
+
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.settingsIcon} onPress={() => navigation.navigate('Settings', { mapType })}>
+      <TouchableOpacity style={styles.settingsIcon} onPress={handleSettingsPress}>
         <Feather name="settings" color="#888" size={22} />
       </TouchableOpacity>
       <MapView
@@ -52,12 +59,12 @@ const MapScreen = ({ navigation, route }) => {
         style={styles.map}
         region={initialRegion}
         onPress={handleMapPress}
-        moveOnMarkerPress={false}
+        moveOnMarkerPress={true}
         scrollEnabled={true}
         zoomEnabled={true}
         pitchEnabled={true}
         rotateEnabled={true}
-        showsUserLocation={true}
+        showsUserLocation={true} // for mark user location on map if you allowed permission
       >
         {marker1 && (
           <Marker
@@ -94,57 +101,6 @@ const styles = StyleSheet.create({
   map: {
     flex: 3,
   },
-  info: {
-    flex: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 10,
-    marginTop: -30,
-    borderTopEndRadius: 25,
-    borderTopStartRadius: 25,
-    backgroundColor: '#f5f5f5',
-  },
-  distanceText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  instructionText: {
-    marginTop: 10,
-    textAlign: 'center',
-    color: '#666',
-  },
-  userMarkerContainer: {
-    alignItems: 'center',
-  },
-  userAvatarContainer: {
-    backgroundColor: 'white',
-    borderRadius: 25,
-    padding: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  userAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  userMarkerPointer: {
-    width: 12,
-    height: 12,
-    backgroundColor: 'white',
-    transform: [{ rotate: '45deg' }],
-    marginTop: -6,
-    borderRadius: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
   settingsIcon: {
     position: 'absolute',
     top: 10,
@@ -155,10 +111,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     zIndex: 10,
     elevation: 10,
-  },
-  settingsText: {
-    fontSize: 24,
-    color: '#333',
   },
 });
 

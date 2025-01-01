@@ -10,9 +10,10 @@ const routes = [
   { key: 'addLatLong', title: 'Add lat/long Manually' },
 ];
 
-export default function MapBottomCard({ selectedMarker, marker1, marker2, onResetMarkers, setMarker1, setMarker2 }) {
+const MapBottomCard = ({ selectedMarker, marker1, marker2, onResetMarkers, setMarker1, setMarker2 }) => {
   const layout = useWindowDimensions();
   const [index, setIndex] = useState(0);
+
   const renderScene = ({ route, jumpTo }) => {
     switch (route.key) {
       case 'results':
@@ -21,16 +22,18 @@ export default function MapBottomCard({ selectedMarker, marker1, marker2, onRese
         return <MapBottomCardAddManullay jumpTo={jumpTo} setMarker1={setMarker1} setMarker2={setMarker2} />;
     }
   };
+
   return (
     <TabView
       navigationState={{ index, routes }}
       renderScene={renderScene}
       onIndexChange={setIndex}
       style={styles.container}
+      // set width of tabview to full screen
       initialLayout={{ width: layout.width }}
     />
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -39,3 +42,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 });
+
+
+export default MapBottomCard;

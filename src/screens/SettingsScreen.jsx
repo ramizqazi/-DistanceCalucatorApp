@@ -1,6 +1,6 @@
 import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 
 const SettingsScreen = ({ route, navigation }) => {
   const { mapType } = route.params;
