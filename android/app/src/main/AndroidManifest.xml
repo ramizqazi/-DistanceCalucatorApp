@@ -24,8 +24,9 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+     <!-- ENTER GOOGLE API KEY HERE  -->
        <meta-data
      android:name="com.google.android.geo.API_KEY"
-     android:value="AIzaSyBJOSftG6os1G6_G43W5o-R2zy77Ld8K5w"/>
+     android:value="${ENTER GOOGLE API KEY HERE}"/>
     </application>
 </manifest>
